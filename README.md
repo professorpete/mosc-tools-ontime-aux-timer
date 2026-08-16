@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest/download/index.html">
+    <img src="https://img.shields.io/badge/⬇%20Download-index.html-2ea44f?style=for-the-badge&labelColor=1a1a1a" alt="Download index.html">
+  </a>
+  &nbsp;
   <a href="https://buymeacoffee.com/mosctools">
     <img src="https://img.shields.io/badge/☕%20Enjoying%20this%20tool%3F-Buy%20me%20a%20coffee-FFDD00?style=for-the-badge&labelColor=1a1a1a" alt="Buy me a coffee">
   </a>
@@ -57,8 +61,9 @@ fonts only, survives network drops, and never surprises you with a color you did
 
 The file ships pointed at `10.1.1.100:4001` — change one line or use a URL parameter.
 
-**Option 1 — just open it.** Copy `index.html` to any machine on the show network and open it
-in a browser. Double-click the page for fullscreen.
+**Option 1 — just open it.** [Download `index.html`](https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest/download/index.html)
+(also on the [latest release](https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest) page), copy it to any
+machine on the show network, and open it in a browser. Double-click the page for fullscreen.
 
 **Option 2 — serve it from Ontime itself.** Drop the file in a folder inside Ontime's
 `external` directory (e.g. `external/aux/index.html`), then open

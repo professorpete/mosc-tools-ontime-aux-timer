@@ -41,7 +41,9 @@ fonts only, survives network drops, and never surprises you with a color you did
   when you show them; the clock shrinks to make room, then reclaims the space.
 - **Blink & blackout** — both Ontime buttons work exactly as they do on built-in views.
 - **Rundown name & branding** (bottom) — current rundown title fetched live, Mosc-tools mark,
-  and a connection pill with the server IP.
+  and a connection pill with the server IP. **Click the IP to change it** — type a new address
+  right on screen (port optional, `4001` assumed), press Enter, and the page reconnects and
+  remembers it on that device.
 - **10-second heartbeat** — the page actively pings the Ontime host; if the host stops
   answering, the pill's dot goes red within seconds and the socket is forced through a
   reconnect cycle. Green again on recovery, no refresh needed.
@@ -71,6 +73,7 @@ Ontime machine with `?server=`.
 | Parameter | What it does | Default |
 | --- | --- | --- |
 | `?server=192.168.1.50:4001` | Ontime host to connect to | `10.1.1.100:4001` |
+| *(none — on-screen)* | Click the IP pill at the bottom to set the address without any URL editing; it's saved in the browser | — |
 | `?aux=1` / `?aux=2` / `?aux=3` | Which AUX timer to display | `1` |
 | `?demo=1` | Demo mode with fake show data (for testing looks) | off |
 

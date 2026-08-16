@@ -10,8 +10,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest/download/index.html">
-    <img src="https://img.shields.io/badge/⬇%20Download-index.html-2ea44f?style=for-the-badge&labelColor=1a1a1a" alt="Download index.html">
+  <a href="https://github.com/professorpete/mosc-tools-ontime-aux-timer/archive/refs/heads/main.zip">
+    <img src="https://img.shields.io/badge/⬇%20Download-zip-2ea44f?style=for-the-badge&labelColor=1a1a1a" alt="Download zip">
+  </a>
+  &nbsp;
+  <a href="https://professorpete.github.io/mosc-tools-ontime-aux-timer/?demo=1">
+    <img src="https://img.shields.io/badge/▶%20Live%20demo-try%20it-3b82f6?style=for-the-badge&labelColor=1a1a1a" alt="Live demo">
   </a>
   &nbsp;
   <a href="https://buymeacoffee.com/mosctools">
@@ -61,9 +65,12 @@ fonts only, survives network drops, and never surprises you with a color you did
 
 The file ships pointed at `10.1.1.100:4001` — change one line or use a URL parameter.
 
-**Option 1 — just open it.** [Download `index.html`](https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest/download/index.html)
-(also on the [latest release](https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest) page), copy it to any
-machine on the show network, and open it in a browser. Double-click the page for fullscreen.
+**Option 1 — just open it.** [Download the zip](https://github.com/professorpete/mosc-tools-ontime-aux-timer/archive/refs/heads/main.zip),
+unzip, and open `index.html` on any machine on the show network. Double-click the page for
+fullscreen. (Or grab the file straight from the [latest release](https://github.com/professorpete/mosc-tools-ontime-aux-timer/releases/latest).)
+
+Want to see it before you download? The [live demo](https://professorpete.github.io/mosc-tools-ontime-aux-timer/?demo=1)
+runs the exact same file with fake show data.
 
 **Option 2 — serve it from Ontime itself.** Drop the file in a folder inside Ontime's
 `external` directory (e.g. `external/aux/index.html`), then open

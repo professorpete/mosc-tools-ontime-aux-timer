@@ -433,9 +433,13 @@
     document.body.classList.toggle('blink', !!mt.blink);
     document.body.classList.toggle('blackout', !!mt.blackout);
 
-    // Stopped (or no data yet): show dashes instead of the idle duration
+    // Stopped (or no data yet): show dashes instead of the idle duration.
+    // Cleared (stopped AND zeroed — e.g. a sheet row with Aux Timer 00:00:00):
+    // show nothing at all until the next automation sets a new time.
     const idle = playback === 'stop' || ms === null || ms === undefined;
-    const text = idle ? '–:––' : formatMs(ms);
+    const cleared = state.auxReceivedAt > 0 && playback === 'stop' &&
+      state.aux.current === 0 && (state.aux.duration ?? 0) === 0;
+    const text = cleared ? '' : idle ? '–:––' : formatMs(ms);
     const fitKey = text.length + '|' + (showMsg || showSec);
     if ($timer.textContent !== text || fitKey !== lastFitKey) {
       $timer.textContent = text;
@@ -641,7 +645,7 @@
   function startDemo() {
     setStatus('Demo mode · AUX 1', 'demo');
     $rundown.textContent = 'Awards Gala — Show Day';
-    state.eventNow = { cue: '14', title: 'Keynote — Welcome & Opening Remarks', colour: '#3b82f6' };
+    state.eventNow = { cue: '14', title: 'PPT — Welcome & Opening Remarks', colour: '#3b82f6' };
     state.eventNext = { cue: '15', title: 'Band — Walk-in Music Sting', colour: '#f59e0b', duration: 300_000 };
     state.aux = { duration: 600_000, current: 254_000, playback: 'start', direction: 'count-down' };
     state.auxReceivedAt = performance.now();

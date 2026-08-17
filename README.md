@@ -39,7 +39,9 @@ fonts only, survives network drops, and never surprises you with a color you did
 
 - **Giant AUX timer** — auto-sized to the screen, smooth local ticking between server updates.
   Amber under 3 minutes, red under 1, flashing red past zero, dimmed when paused,
-  dashes (`–:––`) when idle.
+  dashes (`–:––`) when idle — and completely blank when the timer is cleared (stopped and
+  set to `00:00:00`, e.g. by a show-flow row with `Aux Timer` = `00:00:00`), so the screen
+  shows nothing until the next automation sets a new time.
 - **NOW & NEXT cue bar** (top) — cue number chips in the event's Ontime colour, event titles,
   a live master countdown beside the running cue, and the scheduled duration of the next one.
 - **Discreet corner timers** — the segment countdown stays white, counts through zero, then

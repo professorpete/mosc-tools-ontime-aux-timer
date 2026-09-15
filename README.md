@@ -58,6 +58,11 @@ fonts only, survives network drops, and never surprises you with a color you did
   answering, the pill's dot goes red within seconds and the socket is forced through a
   reconnect cycle. Green again on recovery, no refresh needed.
 - **Ontime v3 & v4** — speaks both WebSocket protocols, auto-detects the message shape.
+- **Local & Cloud** — point it at a LAN instance (`192.168.1.50:4001`) or an
+  [Ontime Cloud](https://www.getontime.no/) URL (`https://myevent.getontime.no`) — it picks
+  plain or secure transport automatically. Note: a copy served over https (like the hosted
+  demo) can only reach Cloud instances — browsers block plain `ws://` to local IPs from
+  secure pages. For LAN use, open the file locally or serve it over plain http.
 
 ![Timer message and secondary message](docs/screenshot-messages.png)
 
@@ -86,7 +91,8 @@ Ontime machine with `?server=`.
 
 | Parameter | What it does | Default |
 | --- | --- | --- |
-| `?server=192.168.1.50:4001` | Ontime host to connect to | `10.1.1.100:4001` |
+| `?server=192.168.1.50:4001` | Local Ontime host to connect to | `10.1.1.100:4001` |
+| `?server=https://myevent.getontime.no` | Ontime Cloud instance (full URL, path kept) | — |
 | *(none — on-screen)* | Click the IP pill at the bottom to set the address without any URL editing; it's saved in the browser | — |
 | `?aux=1` / `?aux=2` / `?aux=3` | Which AUX timer to display | `1` |
 | `?demo=1` | Demo mode with fake show data (for testing looks) | off |

@@ -155,7 +155,7 @@
     text-transform: none;
     text-align: center;
     padding: 0.25em 0.6em;
-    width: 17ch;
+    width: min(34ch, 70vw);
     outline: none;
   }
   #status.editing #serverInput { display: inline-block; }
@@ -300,13 +300,12 @@
 
   /* =========================================================
    * CONFIG — via URL params:
-   *   ?server=192.168.1.10:4001   Ontime server (host:port).
-   *                               Defaults to the host serving this
-   *                               page (perfect when dropped into
-   *                               Ontime's "external" folder),
-   *                               otherwise localhost:4001.
-   *   ?aux=1|2|3                  Which auxiliary timer (default 1).
-   *   ?demo=1                     Simulated data, no server needed.
+   *   ?server=192.168.1.10:4001            Local Ontime (host:port).
+   *   ?server=https://myevent.getontime.no Ontime Cloud (full URL).
+   *   ?aux=1|2|3                           Which auxiliary timer (default 1).
+   *   ?demo=1                              Simulated data, no server needed.
+   * Bare host:port → plain ws:// (local network). A https:// or wss://
+   * prefix — or any *.getontime.no address — → secure wss:// (cloud).
    * ========================================================= */
   const params = new URLSearchParams(window.location.search);
   const AUX_KEY = 'auxtimer' + (['1','2','3'].includes(params.get('aux')) ? params.get('aux') : '1');
@@ -317,11 +316,35 @@
   // editor (click the IP pill at the bottom) → baked-in default.
   let savedServer = null;
   try { savedServer = localStorage.getItem('auxTimerServer'); } catch { /* private mode */ }
-  const SERVER = (params.get('server') || savedServer || DEFAULT_SERVER).replace(/^wss?:\/\//, '').replace(/\/+$/, '');
-  // A page served over https cannot open an insecure ws:// connection,
-  // so fall back to demo mode there (used for hosted previews).
-  const DEMO = params.get('demo') === '1' || (IS_HTTPS && !params.get('server'));
-  const WS_URL = (IS_HTTPS ? 'wss://' : 'ws://') + SERVER + '/ws';
+  const RAW_SERVER = (params.get('server') || savedServer || DEFAULT_SERVER).trim();
+
+  function parseServer(raw) {
+    let v = raw.trim().replace(/\/+$/, '');
+    let secure = null;
+    if (/^(wss|https):\/\//i.test(v)) secure = true;
+    else if (/^(ws|http):\/\//i.test(v)) secure = false;
+    v = v.replace(/^(wss?|https?):\/\//i, '');
+    const slash = v.indexOf('/');
+    const hostport = slash === -1 ? v : v.slice(0, slash);
+    const path = slash === -1 ? '' : v.slice(slash); // cloud instances may sit on a path
+    if (secure === null) {
+      // No explicit protocol: Ontime Cloud domains are always secure;
+      // anything else is treated as a local-network address.
+      secure = /(^|\.)getontime\.no$/i.test(hostport.split(':')[0]);
+    }
+    return { secure, hostport, path, label: hostport + path };
+  }
+
+  const SRV = parseServer(RAW_SERVER);
+  const SERVER = SRV.label;
+  const WS_URL = (SRV.secure ? 'wss://' : 'ws://') + SRV.hostport + SRV.path + '/ws';
+  const HTTP_BASE = (SRV.secure ? 'https://' : 'http://') + SRV.hostport + SRV.path;
+  // A https page cannot open plain ws:// to a local IP (mixed content) —
+  // used to explain failures in the hint.
+  const MIXED_BLOCKED = IS_HTTPS && !SRV.secure;
+  // Demo mode: explicit ?demo=1, or the hosted Perplexity preview.
+  const DEMO = params.get('demo') === '1' ||
+    (IS_HTTPS && !params.get('server') && /perplexity\.|pplx\./i.test(window.location.hostname));
 
   /* ---------- DOM ---------- */
   const $timer = document.getElementById('timer');
@@ -539,8 +562,6 @@
   }
 
   /* ---------- Rundown name (not in the WS store; fetched over HTTP) ---------- */
-  const HTTP_BASE = (IS_HTTPS ? 'https://' : 'http://') + SERVER;
-
   async function fetchRundownTitle() {
     // v4: current rundown carries the title
     try {
@@ -634,10 +655,21 @@
   }
 
   function showHint() {
-    $hint.innerHTML =
-      'Cannot reach Ontime at <code>' + SERVER + '</code>.<br>' +
-      'Point this page at your server with <code>?server=&lt;ip&gt;:4001</code>' +
-      ' &nbsp;·&nbsp; choose a timer with <code>?aux=1|2|3</code>';
+    if (MIXED_BLOCKED) {
+      $hint.innerHTML =
+        'This page is served over <code>https</code>, so the browser blocks plain ' +
+        '<code>ws://</code> connections to local addresses like <code>' + SERVER + '</code>.<br>' +
+        'Click the address at the bottom and enter your <b>Ontime Cloud</b> URL ' +
+        '(e.g. <code>https://myevent.getontime.no</code>) — or download this file and open it ' +
+        'locally to use a LAN Ontime.';
+    } else {
+      $hint.innerHTML =
+        'Cannot reach Ontime at <code>' + SERVER + '</code>.<br>' +
+        'Click the address at the bottom to change it — a local IP like ' +
+        '<code>192.168.1.50:4001</code> or an Ontime Cloud URL like ' +
+        '<code>https://myevent.getontime.no</code>' +
+        ' &nbsp;·&nbsp; choose a timer with <code>?aux=1|2|3</code>';
+    }
     $hint.style.display = 'block';
   }
 
@@ -668,15 +700,21 @@
   const $serverInput = document.getElementById('serverInput');
 
   function normalizeServer(value) {
-    let v = value.trim().replace(/^wss?:\/\//, '').replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    let v = value.trim().replace(/\/+$/, '');
     if (!v) return null;
-    if (!/:[0-9]+$/.test(v)) v += ':4001'; // no port given → Ontime default
+    // Keep any protocol the user typed (https:// or wss:// → cloud).
+    const hasProtocol = /^(wss?|https?):\/\//i.test(v);
+    const host = v.replace(/^(wss?|https?):\/\//i, '').split('/')[0].split(':')[0];
+    const isCloud = /(^|\.)getontime\.no$/i.test(host);
+    const hasPort = /:[0-9]+(\/|$)/.test(v.replace(/^(wss?|https?):\/\//i, ''));
+    // Bare local addresses get Ontime's default port; cloud/protocol URLs are left alone.
+    if (!hasProtocol && !isCloud && !hasPort && v.indexOf('/') === -1) v += ':4001';
     return v;
   }
 
   function applyServer(value) {
     const v = normalizeServer(value);
-    if (!v || v === SERVER) { closeServerEditor(); return; }
+    if (!v || v === RAW_SERVER) { closeServerEditor(); return; }
     try { localStorage.setItem('auxTimerServer', v); } catch { /* private mode */ }
     // Reload with the new address so the socket, heartbeat and rundown
     // fetch all reinitialize cleanly. Demo mode is dropped on purpose.
@@ -687,7 +725,7 @@
   }
 
   function openServerEditor() {
-    $serverInput.value = SERVER;
+    $serverInput.value = RAW_SERVER;
     $status.classList.add('editing');
     $serverInput.focus();
     $serverInput.select();
